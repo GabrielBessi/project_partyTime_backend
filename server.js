@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+
 const authRouter = require("./routes/authRoutes");
+const userRouter = require("./routes/userRoutes");
 
 mongoose.connect("mongodb://127.0.0.1:27017/partyTime", {
   useNewUrlParser: true,
@@ -18,12 +20,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-app.use("/api/auth", authRouter);
-
 //Rotas
-app.get("/", (req, res) => {
-  res.json({ message: "Rota de teste!" });
-});
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 //Conectando com mongoose e mongoDB
 db.on("error", console.error.bind(console, "connection error: "));
