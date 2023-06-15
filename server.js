@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const partyRouter = require("./routes/partyRoutes");
 
 mongoose.connect("mongodb://127.0.0.1:27017/partyTime", {
   useNewUrlParser: true,
@@ -23,6 +24,7 @@ app.use(express.static("public"));
 //Rotas
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/party", partyRouter);
 
 //Conectando com mongoose e mongoDB
 db.on("error", console.error.bind(console, "connection error: "));
