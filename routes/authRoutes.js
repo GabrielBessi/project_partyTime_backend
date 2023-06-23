@@ -60,34 +60,38 @@ userRouter.post("/register", async (req, res) => {
 
 //login
 userRouter.post("/login", async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
 
-  const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email });
 
-  if (!user) {
-    return res.status(400).json({ message: "Email ou senha inválidos" });
+    if (!user) {
+      return res.status(400).json({ error: "Email ou senha inválidos" });
+    }
+
+    const checkPassword = await bcrypt.compare(password, user.password);
+
+    if (!checkPassword) {
+      return res.status(400).json({ error: "Email ou senha inválidos" });
+    }
+
+    const token = jwt.sign(
+      {
+        name: user.name,
+        id: user._id,
+      },
+      process.env.KEYSECRET
+    );
+
+    return res.status(200).json({
+      userId: user._id,
+      message: "Login realizado com sucesso",
+      token: token,
+    });
+  } catch (error) {
+    return res.status(400).json(error);
   }
-
-  const checkPassword = await bcrypt.compare(password, user.password);
-
-  if (!checkPassword) {
-    return res.status(400).json({ message: "Email ou senha inválidos" });
-  }
-
-  const token = jwt.sign(
-    {
-      name: user.name,
-      id: user._id,
-    },
-    process.env.KEYSECRET
-  );
-
-  return res.status(200).json({
-    userId: user._id,
-    message: "Login realizado com sucesso",
-    token: token,
-  });
 });
 
 module.exports = userRouter;

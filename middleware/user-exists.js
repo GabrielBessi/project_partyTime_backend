@@ -6,7 +6,7 @@ const userExistsMiddleware = async (req, res, next) => {
 
   if (idParams) {
     if (idParams !== idToken) {
-      return res.status(400).json({ message: "Erro ao atualizar o usuário" });
+      return res.status(400).json({ error: "Erro ao atualizar o usuário" });
     }
   }
 
