@@ -17,39 +17,34 @@ userRouter.get("/:id", checkTokenMiddleware, async (req, res) => {
   }
 });
 
-userRouter.put(
-  "/update/:id",
-  checkTokenMiddleware,
-  userExistsMiddleware,
-  async (req, res) => {
-    const id = req.user.id;
-    const { name, email, password, confirmPassword } = req.body;
+userRouter.patch("/", checkTokenMiddleware, async (req, res) => {
+  const id = req.user.id;
+  const { name, email, password, confirmPassword } = req.body;
 
-    const dataUser = { name: name, email: email };
+  const dataUser = { name: name, email: email };
 
-    if (password) {
-      if (password !== confirmPassword) {
-        return res.status(400).json({ message: "As senhas não conferem" });
-      } else if (password === confirmPassword && password !== null) {
-        const salt = await bcrypt.genSalt(12);
-        const passwordHash = await bcrypt.hash(password, salt);
+  if (password) {
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "As senhas não conferem" });
+    } else if (password === confirmPassword && password !== null) {
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(password, salt);
 
-        dataUser.password = passwordHash;
-      }
-    }
-
-    try {
-      const user = await User.findOneAndUpdate(
-        { _id: id },
-        { $set: dataUser },
-        { new: true }
-      );
-
-      return res.status(201).json(user);
-    } catch (error) {
-      return res.status(400).json(error);
+      dataUser.password = passwordHash;
     }
   }
-);
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: id },
+      { $set: dataUser },
+      { new: true }
+    );
+
+    return res.status(201).json(user);
+  } catch (error) {
+    return res.status(400).json(error);
+  }
+});
 
 module.exports = userRouter;
