@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const checkTokenMiddleware = (req, res, next) => {
   const token = req.headers.authorization;
+  console.log(token);
 
   if (!token) {
     return res.status(401).json({ error: "Acesso negado" });
@@ -12,7 +13,7 @@ const checkTokenMiddleware = (req, res, next) => {
 
   jwt.verify(tokenAuth, process.env.KEYSECRET, (error, decoded) => {
     if (error) {
-      return res.status(401).json({ message: error.message });
+      return res.status(401).json({ error: error.message });
     }
 
     req.user = {

@@ -8,7 +8,7 @@ const PartySchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  partyData: {
+  partyDate: {
     type: String,
   },
   photos: {

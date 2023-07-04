@@ -29,7 +29,7 @@ partyRouter.post(
     if (title === "null" || description === "null" || partyDate === "null") {
       return res
         .status(400)
-        .json({ message: "Preencha os campos nome, descrição e data" });
+        .json({ error: "Preencha os campos nome, descrição e data" });
     }
 
     const id = req.user.id;
@@ -48,6 +48,7 @@ partyRouter.post(
       const party = new Party({
         title: title,
         description: description,
+        partyDate: partyDate,
         photos: photos,
         privacy: privacy,
         userId: user._id.toString(),
@@ -84,7 +85,7 @@ partyRouter.get("/userparties", checkTokenMiddleware, async (req, res) => {
   try {
     const partiesUser = await Party.find({ userId: id });
 
-    return res.status(200).json(partiesUser);
+    return res.status(200).json({ parties: partiesUser });
   } catch (error) {
     return res.status(400).json(error);
   }
@@ -132,20 +133,16 @@ partyRouter.get("/:id", async (req, res) => {
 });
 
 partyRouter.delete("/", checkTokenMiddleware, async (req, res) => {
-  const id = req.user.id;
+  const id = req.body.userId;
   const partyId = req.body.id;
 
   try {
-    const party = await Party.findOne({ _id: partyId });
-
-    if (!party) {
-      return res.status(400).json({ message: "Festa já foi excluída" });
-    }
+    const party = await Party.findOne({ _id: partyId, userId: id });
 
     if (party.userId.toString() === id) {
       await Party.deleteOne({ _id: partyId, userId: id });
 
-      return res.status(204).json({ message: "Festa excluída com sucesso !" });
+      return res.json({ message: "Festa excluída com sucesso !" });
     } else {
       return res
         .status(400)
@@ -156,7 +153,7 @@ partyRouter.delete("/", checkTokenMiddleware, async (req, res) => {
   }
 });
 
-partyRouter.put(
+partyRouter.patch(
   "/",
   checkTokenMiddleware,
   upload.fields([{ name: "photos" }]),
@@ -208,7 +205,7 @@ partyRouter.put(
         { new: true }
       );
 
-      return res.status(201).json(updateParty);
+      return res.status(201).json({ message: "Festa atualizada com sucesso" });
     } catch (error) {
       return res.status(400).json({ error });
     }
